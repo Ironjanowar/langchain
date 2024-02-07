@@ -257,7 +257,7 @@ defmodule LangChain.ChatModels.ChatOpenAI do
       Req.new(
         url: openai.endpoint,
         json: for_api(openai, messages, functions),
-        auth: {:bearer, get_api_key(openai)},
+        headers: %{"api-key" => get_api_key(openai)},
         receive_timeout: openai.receive_timeout,
         retry: :transient,
         max_retries: 3,
@@ -303,7 +303,7 @@ defmodule LangChain.ChatModels.ChatOpenAI do
     Req.new(
       url: openai.endpoint,
       json: for_api(openai, messages, functions),
-      auth: {:bearer, get_api_key(openai)},
+      headers: %{"api-key" => get_api_key(openai)},
       receive_timeout: openai.receive_timeout
     )
     |> maybe_add_org_id_header()
