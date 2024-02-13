@@ -267,12 +267,13 @@ defmodule LangChain.ChatModels.ChatOpenAI do
         retry_delay: fn attempt -> 300 * attempt end
       )
 
+    req = maybe_add_org_id_header(req)
+
     if openai.log_requests? do
       dbg(req)
     end
 
     req
-    |> maybe_add_org_id_header()
     |> Req.post()
     # parse the body and return it as parsed structs
     |> case do
