@@ -59,6 +59,8 @@ defmodule LangChain.ChatModels.ChatOpenAI do
     field :n, :integer, default: 1
     field :json_response, :boolean, default: false
     field :stream, :boolean, default: false
+
+    field :log_requests?, :boolean, default: false
   end
 
   @type t :: %ChatOpenAI{}
@@ -73,7 +75,8 @@ defmodule LangChain.ChatModels.ChatOpenAI do
     :n,
     :stream,
     :receive_timeout,
-    :json_response
+    :json_response,
+    :log_requests?
   ]
   @required_fields [:endpoint, :model]
 
@@ -264,12 +267,20 @@ defmodule LangChain.ChatModels.ChatOpenAI do
         retry_delay: fn attempt -> 300 * attempt end
       )
 
+    if openai.log_requests? do
+      dbg(req)
+    end
+
     req
     |> maybe_add_org_id_header()
     |> Req.post()
     # parse the body and return it as parsed structs
     |> case do
-      {:ok, %Req.Response{body: data}} ->
+      {:ok, %Req.Response{body: data} = res} ->
+        if openai.log_requests? do
+          dbg(res)
+        end
+
         case do_process_response(data) do
           {:error, reason} ->
             {:error, reason}
